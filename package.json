@@ -23,6 +23,7 @@
     "webpack-dev-server": "^3.11.0"
   },
   "scripts": {
+    "eject": "react-scripts eject",
     "start": "react-scripts start",
     "build": "webpack --config webpack.config.js",
     "test": "react-scripts test",
