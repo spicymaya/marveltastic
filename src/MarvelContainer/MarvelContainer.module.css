@@ -1,0 +1,25 @@
+.grid {
+  display: flex;
+  flex-direction: column;
+  margin: 0 4%;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+.input {
+  height: 40px;
+  width: 40%;
+}
+.inputContianer {
+  display: flex;
+  margin-bottom: 30px;
+}
+@media (max-width: 767px) {
+  .row {
+    flex-direction: column;
+  }
+  .input {
+    width: 100%;
+  }
+}
