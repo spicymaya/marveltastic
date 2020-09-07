@@ -1,55 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import md5 from 'md5';
-// import { debounce } from '../helpers/renderHelpers';
-import useDebouncedSearch from '../helpers/useDebouncedSearch';
+import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import MarvelCharacter from '../MarvelCharacter/MarvelCharacter';
 import Header from '../Header/Header';
 import styles from './MarvelContainer.module.css';
+import { getAllCharacters, getSingleCharacter } from '../lib/api';
 
-const ts = Date.now();
-const publicKey = '23a1b44bdda4bdc76b8cd4e4a125b5da';
-const privateKey = '0778a2817a560328adbad44309187a1b837ccd0e';
-const hash = md5(ts + privateKey + publicKey);
-
-const getAllCharacters = async () => {
-  const initialCharactersUrl = `https://gateway.marvel.com:443/v1/public/characters?ts=${ts}&apikey=${publicKey}&hash=${hash}&limit=12`;
-  const response = await fetch(initialCharactersUrl, {
-    method: 'GET',
-  });
-  return response.json();
-};
-const getSingleCharacter = async (name) => {
-  const singleCharactersUrl = `https://gateway.marvel.com:443/v1/public/characters?ts=${ts}&apikey=${publicKey}&hash=${hash}&name=${name}`;
-  const response = await fetch(singleCharactersUrl, {
-    method: 'GET',
-  });
-  return response.json();
-};
-const getSingleCharacter = () => useDebouncedSearch((name) => getSingleCharacter(name), 500);
+const debouncedGetSingleCharacter = AwesomeDebouncePromise(getSingleCharacter, 500);
 
 const MarvelContainer = () => {
   const [initCharacters, setInitCharacters] = useState();
-  const { inputText, setInputText, searchResults } = getSingleCharacter();
-  const [showResults, setShowResults] = useState(false);
+  const [searchCharacters, setSearchCharacters] = useState();
+  const [showInitialData, setShowInitialData] = useState(true);
+  const [inputText, setInputText] = useState('');
 
-  useEffect(async () => {
-    const data = await getAllCharacters();
-    setInitCharacters(data.data.results);
+  useEffect(() => {
+    getAllCharacters().then((data) => setInitCharacters(data.data.results));
   }, []);
 
   useEffect(() => {
-    if (
-      searchResults &&
-      searchResults.result &&
-      searchResults.result.data &&
-      searchResults.result.data.results.length &&
-      inputText
-    ) {
-      setShowResults(true);
-    } else {
-      setShowResults(false);
+    if (inputText.length) {
+      debouncedGetSingleCharacter(inputText).then((data) => {
+        setSearchCharacters(data.data.results);
+      });
     }
-  }, [searchResults, inputText]);
+
+    setShowInitialData(!inputText.length);
+  }, [inputText]);
 
   return (
     <>
@@ -59,12 +35,10 @@ const MarvelContainer = () => {
           <input
             className={styles.input}
             placeholder="Type full character name to search"
-            value={inputText}
             onChange={(e) => setInputText(e.target.value)}
           />
         </div>
-
-        {!showResults
+        {showInitialData
           ? initCharacters && (
               <div className={styles.row} data-testid="initialCharacters">
                 {initCharacters.map((character) => (
@@ -72,9 +46,9 @@ const MarvelContainer = () => {
                 ))}
               </div>
             )
-          : searchResults.result.data.results && (
+          : searchCharacters && (
               <div className={styles.row} data-testid="searchResults">
-                {searchResults.result.data.results.map((character) => (
+                {searchCharacters.map((character) => (
                   <MarvelCharacter name={character.name} thumbnail={character.thumbnail} />
                 ))}
               </div>
