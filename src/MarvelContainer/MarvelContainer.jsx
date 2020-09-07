@@ -10,27 +10,26 @@ const ts = Date.now();
 const publicKey = '23a1b44bdda4bdc76b8cd4e4a125b5da';
 const privateKey = '0778a2817a560328adbad44309187a1b837ccd0e';
 const hash = md5(ts + privateKey + publicKey);
-const initialCharactersUrl = `https://gateway.marvel.com:443/v1/public/characters?ts=${ts}&apikey=${publicKey}&hash=${hash}&limit=12`;
-const getSingleCharactersUrl = (name) =>
-  `https://gateway.marvel.com:443/v1/public/characters?ts=${ts}&apikey=${publicKey}&hash=${hash}&name=${name}`;
 
 const getAllCharacters = async () => {
+  const initialCharactersUrl = `https://gateway.marvel.com:443/v1/public/characters?ts=${ts}&apikey=${publicKey}&hash=${hash}&limit=12`;
   const response = await fetch(initialCharactersUrl, {
     method: 'GET',
   });
   return response.json();
 };
 const getSingleCharacter = async (name) => {
-  const response = await fetch(getSingleCharactersUrl(name), {
+  const singleCharactersUrl = `https://gateway.marvel.com:443/v1/public/characters?ts=${ts}&apikey=${publicKey}&hash=${hash}&name=${name}`;
+  const response = await fetch(singleCharactersUrl, {
     method: 'GET',
   });
   return response.json();
 };
-const useGetSingleCharacter = () => useDebouncedSearch((name) => getSingleCharacter(name), 500);
+const getSingleCharacter = () => useDebouncedSearch((name) => getSingleCharacter(name), 500);
 
 const MarvelContainer = () => {
   const [initCharacters, setInitCharacters] = useState();
-  const { inputText, setInputText, searchResults } = useGetSingleCharacter();
+  const { inputText, setInputText, searchResults } = getSingleCharacter();
   const [showResults, setShowResults] = useState(false);
 
   useEffect(async () => {
@@ -67,14 +66,14 @@ const MarvelContainer = () => {
 
         {!showResults
           ? initCharacters && (
-              <div className={styles.row}>
+              <div className={styles.row} data-testid="initialCharacters">
                 {initCharacters.map((character) => (
                   <MarvelCharacter name={character.name} thumbnail={character.thumbnail} />
                 ))}
               </div>
             )
           : searchResults.result.data.results && (
-              <div className={styles.row}>
+              <div className={styles.row} data-testid="searchResults">
                 {searchResults.result.data.results.map((character) => (
                   <MarvelCharacter name={character.name} thumbnail={character.thumbnail} />
                 ))}
