@@ -38,21 +38,26 @@ const MarvelContainer = () => {
             onChange={(e) => setInputText(e.target.value)}
           />
         </div>
-        {showInitialData
-          ? initCharacters && (
-              <div className={styles.row} data-testid="initialCharacters">
-                {initCharacters.map((character) => (
-                  <MarvelCharacter name={character.name} thumbnail={character.thumbnail} />
-                ))}
-              </div>
-            )
-          : searchCharacters && (
-              <div className={styles.row} data-testid="searchResults">
-                {searchCharacters.map((character) => (
-                  <MarvelCharacter name={character.name} thumbnail={character.thumbnail} />
-                ))}
-              </div>
-            )}
+        {showInitialData ? (
+          initCharacters && (
+            <div className={styles.row} data-testid="initialCharacters">
+              {initCharacters.map((character) => (
+                <MarvelCharacter name={character.name} thumbnail={character.thumbnail} />
+              ))}
+            </div>
+          )
+        ) : searchCharacters && searchCharacters.length ? (
+          <div className={styles.row} data-testid="searchResults">
+            {searchCharacters.map((character) => (
+              <MarvelCharacter name={character.name} thumbnail={character.thumbnail} />
+            ))}
+          </div>
+        ) : (
+          <div>
+            Type in FULL character name i.e. <b>Iron Man</b> or <b>Black Widow</b>. Public Marvel
+            API won't return results, if name doesn't match 100% 👿
+          </div>
+        )}
       </div>
     </>
   );
