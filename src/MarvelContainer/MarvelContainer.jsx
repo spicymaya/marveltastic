@@ -5,12 +5,12 @@ import Header from '../Header/Header';
 import styles from './MarvelContainer.module.css';
 import { getAllCharacters, getSingleCharacter } from '../lib/api';
 
-const debouncedGetSingleCharacter = AwesomeDebouncePromise(getSingleCharacter, 500);
+const debouncedGetSingleCharacter = AwesomeDebouncePromise(getSingleCharacter, 300);
 
 const MarvelContainer = () => {
   const [initCharacters, setInitCharacters] = useState();
   const [searchCharacters, setSearchCharacters] = useState();
-  const [showInitialData, setShowInitialData] = useState(true);
+  const [isSearch, setIsSearch] = useState(false);
   const [inputText, setInputText] = useState('');
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const MarvelContainer = () => {
       });
     }
 
-    setShowInitialData(!inputText.length);
+    setIsSearch(inputText.length);
   }, [inputText]);
 
   return (
@@ -34,22 +34,31 @@ const MarvelContainer = () => {
         <div className={styles.inputContianer}>
           <input
             className={styles.input}
+            data-testid="inputTest"
             placeholder="Type full character name to search"
             onChange={(e) => setInputText(e.target.value)}
           />
         </div>
-        {showInitialData ? (
+        {!isSearch ? (
           initCharacters && (
             <div className={styles.row} data-testid="initialCharacters">
               {initCharacters.map((character) => (
-                <MarvelCharacter name={character.name} thumbnail={character.thumbnail} />
+                <MarvelCharacter
+                  name={character.name}
+                  thumbnail={character.thumbnail}
+                  key={character.id}
+                />
               ))}
             </div>
           )
         ) : searchCharacters && searchCharacters.length ? (
           <div className={styles.row} data-testid="searchResults">
             {searchCharacters.map((character) => (
-              <MarvelCharacter name={character.name} thumbnail={character.thumbnail} />
+              <MarvelCharacter
+                name={character.name}
+                thumbnail={character.thumbnail}
+                key={character.id}
+              />
             ))}
           </div>
         ) : (
