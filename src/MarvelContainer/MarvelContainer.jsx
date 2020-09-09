@@ -8,8 +8,8 @@ import { getAllCharacters, getSingleCharacter } from '../lib/api';
 const debouncedGetSingleCharacter = AwesomeDebouncePromise(getSingleCharacter, 300);
 
 const MarvelContainer = () => {
-  const [initCharacters, setInitCharacters] = useState();
-  const [searchCharacters, setSearchCharacters] = useState();
+  const [initCharacters, setInitCharacters] = useState([]);
+  const [searchCharacters, setSearchCharacters] = useState([]);
   const [isSearch, setIsSearch] = useState(false);
   const [inputText, setInputText] = useState('');
 
@@ -22,6 +22,8 @@ const MarvelContainer = () => {
       debouncedGetSingleCharacter(inputText).then((data) => {
         setSearchCharacters(data.data.results);
       });
+    } else {
+      setSearchCharacters([]);
     }
 
     setIsSearch(inputText.length);
